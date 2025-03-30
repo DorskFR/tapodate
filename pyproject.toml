@@ -89,8 +89,6 @@ ignore = [
 
 [tool.pytest.ini_options]
 addopts = "-s -x -v"
-asyncio_default_fixture_loop_scope = "module"
-asyncio_mode = "auto"
 cache_dir = ".cache/pytest_cache"
 
 [tool.vulture]
