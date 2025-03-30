@@ -1,6 +1,6 @@
 APP ?= tapodate
 TESTS ?= ./tests
-PYTHON ?= rye run python
+PYTHON ?= ./.venv/bin/python
 REPOSITORY_URL ?= ghcr.io/dorskfr/$(subst _,-,$(APP))
 IMAGE_TAG ?= $(shell grep '^version = ' pyproject.toml | sed -E 's/version = "(.*)"/\1/')
 
@@ -11,6 +11,10 @@ clean:
 	find . -type d -name .pytest_cache -prune -exec rm -rf {} \;
 	find . -type d -name .ruff_cache -prune -exec rm -rf {} \;
 	find . -type d -name venv -prune -exec rm -rf {} \;
+
+setup/pip:
+	python -m venv .venv
+	./.venv/bin/python -m pip install -r requirements-dev.lock
 
 lint:
 	$(PYTHON) -m ruff check ./$(APP) $(TESTS)
