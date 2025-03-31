@@ -1,9 +1,10 @@
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import List
 
+import pytz
 import requests
 import urllib3
 
@@ -23,14 +24,15 @@ class CameraConfig:
 
     ip: str
     ntp_servers: List[str]
+    tz: str
 
 
-def get_current_date_command() -> str:
+def get_current_date_command(camera: CameraConfig) -> str:
     """
     Generate command to set current date on camera.
     """
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(tz=pytz.timezone(camera.tz))
     return f"date -s '{now.strftime('%Y-%m-%d %H:%M:%S')}'"
 
 
@@ -53,7 +55,7 @@ def generate_hosts_file_content() -> str:
     lines = ["127.0.0.1 localhost"]
     lines.extend([f"0.0.0.0 {domain}" for domain in blocked_domains])
 
-    return "\n".join(lines)
+    return "\\n".join(lines)
 
 
 def build_command_string(camera: CameraConfig) -> str:
@@ -64,7 +66,7 @@ def build_command_string(camera: CameraConfig) -> str:
     commands = []
 
     # Set date command
-    commands.append(get_current_date_command())
+    commands.append(get_current_date_command(camera))
 
     # Kill existing NTP daemon
     commands.append("killall ntpd")
@@ -82,15 +84,16 @@ def build_command_string(camera: CameraConfig) -> str:
     # Start Telnet daemon
     commands.append(f"/usr/sbin/telnetd -b {camera.ip}")
 
-    # Set hosts file if cloud blocking is enabled
-    hosts_content = generate_hosts_file_content()
-    commands.append(f"echo '{hosts_content}' > /etc/hosts")
-
     # Join all commands with semicolons
     return "; ".join(commands)
 
 
-def sync_camera(camera: CameraConfig) -> bool:
+def build_hosts_command() -> str:
+    hosts_content = generate_hosts_file_content()
+    return f"echo '{hosts_content}' > /etc/hosts"
+
+
+def sync_camera(camera: CameraConfig, command: str) -> bool:
     """
 
     Sync time and apply settings to a Tapo camera using the CVE-2021-4045 vulnerability.
@@ -105,7 +108,6 @@ def sync_camera(camera: CameraConfig) -> bool:
 
     try:
         # Build the command string
-        command = build_command_string(camera)
         logger.info(f"Executing command: {command}")
 
         # Create payload for the vulnerability
@@ -143,15 +145,22 @@ def main() -> None:
     ntp_servers = [server.strip() for server in ntp_servers if server.strip()]
 
     # Create camera configurations
-    cameras = [CameraConfig(ip=ip, ntp_servers=ntp_servers) for ip in camera_ips]
+    tz = os.getenv("TZ", "UTC")
+    cameras = [CameraConfig(ip=ip, ntp_servers=ntp_servers, tz=tz) for ip in camera_ips]
 
     # Sync each cameras
     for camera in cameras:
-        success = sync_camera(camera)
-        if success:
-            logger.info(f"Camera at {camera.ip} synced successfully")
-        else:
+        success = sync_camera(camera, build_command_string(camera))
+        if not success:
             logger.error(f"Failed to sync camera at {camera.ip}")
+            continue
+
+        success = sync_camera(camera, build_hosts_command())
+        if not success:
+            logger.error(f"Failed to sync camera at {camera.ip}")
+            continue
+
+        logger.info(f"Camera at {camera.ip} synced successfully")
 
 
 if __name__ == "__main__":

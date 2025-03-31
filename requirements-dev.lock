@@ -28,6 +28,8 @@ packaging==24.2
 pluggy==1.5.0
     # via pytest
 pytest==8.3.5
+pytz==2025.2
+    # via tapodate
 requests==2.32.3
     # via tapodate
 ruff==0.11.2
@@ -35,6 +37,7 @@ tomli==2.2.1
     # via mypy
     # via pytest
     # via vulture
+types-pytz==2024.2.0.20241221
 types-requests==2.32.0.20241016
 typing-extensions==4.13.0
     # via mypy

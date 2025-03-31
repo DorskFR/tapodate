@@ -1,9 +1,10 @@
 [project]
 name = "tapodate"
-version = "0.1.0"
+version = "0.1.1"
 description = "Command injection exploit to Tapo C200"
 dependencies = [
     "requests>=2.32.3",
+    "pytz>=2025.2",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
@@ -20,6 +21,7 @@ dev-dependencies = [
     "mypy>=1.14.1",
     "pytest>=8.3.5",
     "types-requests>=2.32.0.20241016",
+    "types-pytz>=2024.2.0.20241221",
 ]
 
 [tool.hatch.metadata]
