@@ -1,13 +1,13 @@
 [project]
 name = "tapodate"
-version = "0.1.1"
+version = "0.1.2"
 description = "Command injection exploit to Tapo C200"
 dependencies = [
     "requests>=2.32.3",
     "pytz>=2025.2",
 ]
 readme = "README.md"
-requires-python = ">= 3.8"
+requires-python = ">= 3.13"
 
 [build-system]
 requires = ["hatchling"]
@@ -36,7 +36,7 @@ cache_dir = ".cache/mypy_cache"
 [tool.ruff]
 cache-dir = ".cache/ruff_cache"
 line-length = 120
-target-version = "py38"
+target-version = "py313"
 
 [tool.ruff.lint]
 select = [

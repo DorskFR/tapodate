@@ -10,38 +10,40 @@
 #   universal: false
 
 -e file:.
-certifi==2025.1.31
-    # via requests
-charset-normalizer==3.4.1
-    # via requests
-exceptiongroup==1.2.2
-    # via pytest
-idna==3.10
-    # via requests
-iniconfig==2.1.0
-    # via pytest
-mypy==1.14.1
-mypy-extensions==1.0.0
+ast-serialize==0.13.1
     # via mypy
-packaging==24.2
+certifi==2026.10.23
+    # via requests
+charset-normalizer==3.5.2
+    # via requests
+idna==3.20
+    # via requests
+iniconfig==2.3.1
     # via pytest
-pluggy==1.5.0
+librt==0.16.0
+    # via mypy
+mypy==2.4.1
+mypy-extensions==1.2.0
+    # via mypy
+packaging==26.3
     # via pytest
-pytest==8.3.5
-pytz==2025.2
+pathspec==1.1.1
+    # via mypy
+pluggy==1.7.0
+    # via pytest
+pygments==2.21.0
+    # via pytest
+pytest==9.2.0
+pytz==2026.6
     # via tapodate
-requests==2.32.3
+requests==2.34.2
     # via tapodate
-ruff==0.11.2
-tomli==2.2.1
+ruff==0.17.5
+types-pytz==2026.6.0.20261031
+types-requests==2.33.0.20261030
+typing-extensions==4.16.0
     # via mypy
-    # via pytest
-    # via vulture
-types-pytz==2024.2.0.20241221
-types-requests==2.32.0.20241016
-typing-extensions==4.13.0
-    # via mypy
-urllib3==2.2.3
+urllib3==2.8.0
     # via requests
     # via types-requests
-vulture==2.14
+vulture==2.16

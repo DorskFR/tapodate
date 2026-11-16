@@ -10,15 +10,15 @@
 #   universal: false
 
 -e file:.
-certifi==2025.1.31
+certifi==2026.10.23
     # via requests
-charset-normalizer==3.4.1
+charset-normalizer==3.5.2
     # via requests
-idna==3.10
+idna==3.20
     # via requests
-pytz==2025.2
+pytz==2026.6
     # via tapodate
-requests==2.32.3
+requests==2.34.2
     # via tapodate
-urllib3==2.2.3
+urllib3==2.8.0
     # via requests
