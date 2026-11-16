@@ -4,6 +4,10 @@ on:
   release:
     types: [edited,published]
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -18,7 +22,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
       - run: IMAGE_TAG=${{ env.VERSION }} make docker/build
       - run: IMAGE_TAG=${{ env.VERSION }} make docker/push
