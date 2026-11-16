@@ -2,7 +2,6 @@ import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List
 
 import pytz
 import requests
@@ -23,7 +22,7 @@ class CameraConfig:
     """
 
     ip: str
-    ntp_servers: List[str]
+    ntp_servers: list[str]
     tz: str
 
 

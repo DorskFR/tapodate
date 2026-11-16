@@ -1,5 +1,5 @@
-ARG PYTHON_VERSION=3.8
-FROM python:${PYTHON_VERSION}-slim AS build
+ARG PYTHON_VERSION=3.13
+FROM python:${PYTHON_VERSION}-slim-trixie AS build
 
 # Set a default project name if not provided
 ARG PROJECT_NAME
