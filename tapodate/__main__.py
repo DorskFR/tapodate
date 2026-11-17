@@ -1,14 +1,33 @@
 import logging
 import os
+import ssl
 from dataclasses import dataclass
 from datetime import datetime
 
 import pytz
 import requests
 import urllib3
+from requests.adapters import HTTPAdapter
 
 # Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+
+class LegacyTLSAdapter(HTTPAdapter):
+    # Tapo cameras only offer ciphers OpenSSL 3 refuses above SECLEVEL 0.
+    def init_poolmanager(self, *args, **kwargs):
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        ctx.set_ciphers("DEFAULT:@SECLEVEL=0")
+        kwargs["ssl_context"] = ctx
+        super().init_poolmanager(*args, **kwargs)
+
+
+def build_session() -> requests.Session:
+    session = requests.Session()
+    session.mount("https://", LegacyTLSAdapter())
+    return session
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -92,7 +111,7 @@ def build_hosts_command() -> str:
     return f"echo '{hosts_content}' > /etc/hosts"
 
 
-def sync_camera(camera: CameraConfig, command: str) -> bool:
+def sync_camera(session: requests.Session, camera: CameraConfig, command: str) -> bool:
     """
 
     Sync time and apply settings to a Tapo camera using the CVE-2021-4045 vulnerability.
@@ -114,7 +133,7 @@ def sync_camera(camera: CameraConfig, command: str) -> bool:
 
         # Send the request to the camera
         url = f"https://{camera.ip}:443/"
-        response = requests.post(url, json=payload, verify=False, timeout=10)  # noqa: S501
+        response = session.post(url, json=payload, verify=False, timeout=10)
 
         # Check if the request was successful
         if response.status_code == 200:
@@ -148,13 +167,14 @@ def main() -> None:
     cameras = [CameraConfig(ip=ip, ntp_servers=ntp_servers, tz=tz) for ip in camera_ips]
 
     # Sync each cameras
+    session = build_session()
     for camera in cameras:
-        success = sync_camera(camera, build_command_string(camera))
+        success = sync_camera(session, camera, build_command_string(camera))
         if not success:
             logger.error(f"Failed to sync camera at {camera.ip}")
             continue
 
-        success = sync_camera(camera, build_hosts_command())
+        success = sync_camera(session, camera, build_hosts_command())
         if not success:
             logger.error(f"Failed to sync camera at {camera.ip}")
             continue
